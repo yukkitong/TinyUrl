@@ -1,0 +1,13 @@
+###
+POST http://localhost:8080/gen
+Content-Type: application/json
+
+{
+  "url": "http://mysite.com/some_path?some_param1=some_value2"
+}
+
+###
+POST http://localhost:8080/gen
+Content-Type: application/x-www-form-urlencoded
+
+url=http://mysite.com/some_path?some_param1=some_value4

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css"/>
+  <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css"/>
+  <style>
+    .btn, .input-group-text {
+      width: 120px;
+    }
+
+    #input {
+      margin-top: 140px;
+      margin-bottom: 60px;
+    }
+
+    #tinyurl {
+      color: yellowgreen;
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+
+    <b-jumbotron header="Tiny URL Generator 1.0">
+      <hr class="my-4">
+      <p>For more information visit website. <b-btn variant="primary" href="#">More Info</b-btn></p>
+    </b-jumbotron>
+    
+    <b-container>
+
+      <b-input-group size="lg" prepend="LONG URL" id="input">
+        <b-form-input id="longurl" v-model="longurl"></b-form-input>
+        <b-input-group-append>
+          <b-btn size="sm" text="Button" variant="info" class="btn" @click.stop.prevent="getTinyUrl">GEN</b-btn>
+        </b-input-group-append>
+      </b-input-group>
+      
+      <b-input-group size="lg" prepend="TINY URL" id="output">
+        <b-form-input id="tinyurl" readonly="readonly" v-model="tinyurl"></b-form-input>
+        <b-input-group-append>
+          <b-btn size="sm" text="Button" variant="warning" class="btn" @click.stop.prevent="copy">COPY</b-btn>
+        </b-input-group-append>
+      </b-input-group>
+
+      <b-tooltip :show.sync="show" target="tinyurl" placement="bottom">
+        클립보드에 복사되었습니다.
+      </b-tooltip>
+
+      <!-- Modal Component -->
+      <!-- <b-modal id="modal1" title="COPIED!" v-model="show">
+        <p class="my-4">클립보드에 복사되었습니다.</p>
+        <div slot="modal-footer" class="w-100">
+          <b-btn size="sm" class="float-right" variant="primary" @click="show=false">확인</b-btn>
+        </div>
+      </b-modal> -->
+
+    </b-container>
+      
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="//unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
+  <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+  <script>
+    var vue = new Vue({
+      el: '#app',
+      data() {
+        return {
+          show: false,
+          longurl: '',
+          tinyurl: ''
+        }
+      },
+      methods: {
+        copy() {
+          let output = document.querySelector('#tinyurl')
+          output.select()
+
+          try {
+            document.execCommand('copy')
+            this.showModal()
+          } catch (err) {
+          }
+
+          /* unselect the range */
+          window.getSelection().removeAllRanges()
+        },
+        getTinyUrl() {
+          if (!this.longurl) return
+          if (!this.longurl.startsWith('http://') &&
+            !this.longurl.startsWith('https://')) return
+            
+          var that = this, url = this.longurl;
+          axios.post('http://localhost:8080/gen', { url })
+            .then(response => response.data)
+            .then(response => {
+              console.log(response)
+              that.tinyurl = response.output
+            })
+        },
+        showModal() {
+          this.show = true
+          setTimeout(() => {
+            this.show = false
+          }, 3000)
+        }
+      }
+    })
+  </script>
+</body>
+</html>
